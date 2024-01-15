@@ -84,3 +84,14 @@ python src/blip_fine_tune_2.py \
    --validation-frequency 1 
 ```
 
+### evaluation
+
+
+```sh
+python src/validate_blip.py \
+   --dataset {'CIRR' or 'FashionIQ'} \
+   --blip-model-name {trained model name} \
+   --blip-model-path {for path} 
+```
+### checkpoints
+[ ] To be released.
