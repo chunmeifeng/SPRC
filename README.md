@@ -1,6 +1,10 @@
 
 # Sentence-level Prompts Benefit Composed Image Retrieval
 
+### Environment
+
+pytorch 2.0.1
+
 ### Data Preparation
 
 To properly work with the codebase FashionIQ and CIRR datasets should have the following structure:
