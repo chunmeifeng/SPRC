@@ -1,5 +1,5 @@
 
-# Sentence-level Prompts Benefit Composed Image Retrieval
+# Sentence-level Prompts Benefit Composed Image Retrieval 【ICLR 2024, Spotlight】
 
 ### Environment
 
