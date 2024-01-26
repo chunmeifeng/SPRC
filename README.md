@@ -76,7 +76,7 @@ project_base_path
 ```sh
 python src/blip_fine_tune_2.py \
    --dataset {'CIRR' or 'FashionIQ'} \
-   --blip-model-name {'blip2_cir_z_learn_pos_align' or 'blip2_cir_cat' for baseline} \
+   --blip-model-name {'blip2_cir_align_prompt' or 'blip2_cir_cat' for baseline} \
    --num-epochs {'50' for CIRR, '30' for fashionIQ} \
    --num-workers 4 \
    --learning-rate {'1e-5' for CIRR, '2e-5' for fashionIQ} \
