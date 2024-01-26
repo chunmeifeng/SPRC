@@ -1,7 +1,16 @@
 
 # Sentence-level Prompts Benefit Composed Image Retrieval 【ICLR 2024, Spotlight】
 
-### Environment
+### Prerequisites
+
+	
+The following commands will create a local Anaconda environment with the necessary packages installed.
+
+```bash
+conda create -n cir_sprc -y python=3.9
+conda activate cir
+pip install -r requirements.txt
+```
 
 pytorch 2.0.1
 
@@ -99,3 +108,6 @@ python src/validate_blip.py \
 ```
 ### checkpoints
 [ ] To be released.
+
+### Acknowledgement
+Our implementation is based on [CLIP4Cir](https://github.com/ABaldrati/CLIP4Cir) and [LAVIS]([https://github.com/salesforce/BLIP](https://github.com/salesforce/LAVIS)https://github.com/salesforce/LAVIS).
