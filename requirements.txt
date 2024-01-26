@@ -1,0 +1,14 @@
+pandas==2.2.0
+tqdm==4.66.1
+omegaconf==2.3.0
+iopath==0.1.10
+timm==0.9.12
+decord==0.6.0
+webdataset==0.2.86
+opencv-python
+transformers==4.36.2
+fairscale==0.4.13
+einops==0.7.0
+scikit-image==0.22.0
+spacy==3.7.2
+pycocoevalcap==1.2

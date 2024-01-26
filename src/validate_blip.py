@@ -4,12 +4,9 @@ from operator import itemgetter
 from pathlib import Path
 from statistics import mean
 from typing import List, Tuple
-
-import clip
 import numpy as np
 import torch
 import torch.nn.functional as F
-from clip.model import CLIP
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from lavis.models import load_model_and_preprocess
@@ -206,7 +203,7 @@ def generate_fiq_val_predictions(blip_model, relative_val_dataset: FashionIQData
     return distance, target_names, reference_names_all, captions_all
 
 
-def fashioniq_val_retrieval(dress_type: str, combining_function: callable, clip_model: CLIP, preprocess: callable):
+def fashioniq_val_retrieval(dress_type: str, combining_function: callable, clip_model, preprocess):
     """
     Perform retrieval on FashionIQ validation set computing the metrics. To combine the features the `combining_function`
     is used
@@ -286,7 +283,7 @@ def compute_cirr_val_metrics(relative_val_dataset: CIRRDataset, blip_model, inde
 
 
 
-def compute_cirr_val_metrics_relative(relative_val_dataset: CIRRDataset, clip_model: CLIP, index_features: torch.tensor,
+def compute_cirr_val_metrics_relative(relative_val_dataset: CIRRDataset, clip_model, index_features: torch.tensor,
                              index_names: List[str], combining_function: callable) -> Tuple[
     float, float, float, float, float, float, float]:
     """
@@ -409,7 +406,7 @@ def generate_cirr_val_predictions(blip_model, relative_val_dataset: CIRRDataset,
     return distance, reference_names, target_names, group_members, captions_all
 
 
-def generate_cirr_val_predictions_relative(clip_model: CLIP, relative_val_dataset: CIRRDataset,
+def generate_cirr_val_predictions_relative(clip_model , relative_val_dataset: CIRRDataset,
                                   combining_function: callable, index_names: List[str], index_features: torch.tensor) -> \
         Tuple[torch.tensor, List[str], List[str], List[List[str]]]:
     """
@@ -471,7 +468,7 @@ def generate_cirr_val_predictions_relative(clip_model: CLIP, relative_val_datase
     return predicted_features, relative_all, reference_names, target_names, group_members
 
 
-def cirr_val_retrieval(combining_function: callable, clip_model: CLIP, preprocess: callable):
+def cirr_val_retrieval(combining_function: callable, clip_model, preprocess: callable):
     """
     Perform retrieval on CIRR validation set computing the metrics. To combine the features the `combining_function`
     is used

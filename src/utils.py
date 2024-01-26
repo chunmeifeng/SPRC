@@ -5,7 +5,6 @@ from typing import Union, Tuple, List
 
 import torch
 import torch.nn.functional as F
-from clip.model import CLIP
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -18,7 +17,7 @@ else:
     device = torch.device("cpu")
 
 
-def extract_index_features(dataset: Union[CIRRDataset, FashionIQDataset], clip_model: CLIP) -> \
+def extract_index_features(dataset: Union[CIRRDataset, FashionIQDataset], clip_model) -> \
         Tuple[torch.tensor, List[str]]:
     """
     Extract FashionIQ or CIRR index features

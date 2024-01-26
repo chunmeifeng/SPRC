@@ -40,10 +40,12 @@ from lavis.models.blip2_models.blip2_image_text_matching import Blip2ITM
 
 from lavis.models.blip2_models.blip2_qformer_prompt import Blip2QformerPrompt
 from lavis.models.blip2_models.blip2_qformer_cir_cat import Blip2QformerCirCat
+from lavis.models.blip2_models.blip2_qformer_cir_align_prompt import Blip2QformerCirAlignPrompt
 from lavis.models.blip2_models.blip2_qformer_cir_cls import Blip2QformerCirCls
 from lavis.models.blip2_models.blip2_qformer_cir_slt import Blip2QformerCirSlt
 from lavis.models.blip2_models.blip2_qformer_cir_neg import Blip2QformerCirNeg
 from lavis.models.blip2_models.blip2_qformer_cir_rel import Blip2QformerCirRel
+from lavis.models.blip2_models.blip2_qformer_cir_full import Blip2QformerCirFull
 from lavis.models.blip2_models.blip2_qformer_cir_neg_rel import Blip2QformerCirNegRel
 from lavis.models.blip2_models.blip2_qformer_cir_rerank import Blip2QformerCirRerank
 from lavis.models.blip2_models.blip2_qformer_cir_z_learn_pos_align import Blip2QformerCirZLearnPosAlign
@@ -94,6 +96,8 @@ __all__ = [
     "Blip2QformerCirRel",
     "Blip2QformerCirNegRel",
     "Blip2QformerCirZLearnPosAlign",
+    "Blip2QformerCirAlignPrompt",
+    "Blip2QformerCirFull",
     "Blip2Base",
     "Blip2ITM",
     "Blip2OPT",

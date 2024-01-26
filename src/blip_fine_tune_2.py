@@ -5,7 +5,6 @@ from datetime import datetime
 from pathlib import Path
 from statistics import mean, geometric_mean, harmonic_mean
 from typing import List
-import clip
 import numpy as np
 import pandas as pd
 import torch
@@ -106,38 +105,7 @@ def clip_finetune_fiq(train_dress_types: List[str], val_dress_types: List[str],
     training_log_frame = pd.DataFrame()
     validation_log_frame = pd.DataFrame()
 
-    # debug
-    # index_features, index_names = extract_index_blip_features(classic_val_dataset, blip_model)
-    # recall_at10, recall_at50 = compute_fiq_val_metrics(relative_val_dataset, blip_model,
-    #                                                     index_features, index_names, txt_processors)
-    # blip_model.eval()
-    # recalls_at10 = []
-    # recalls_at50 = []
 
-    # # Compute and log validation metrics for each validation dataset (which corresponds to a different
-    # # FashionIQ category)
-    # for relative_val_dataset, classic_val_dataset, idx in zip(relative_val_datasets, classic_val_datasets,
-    #                                                             idx_to_dress_mapping):
-        
-    #     index_features, index_names = extract_index_blip_features(classic_val_dataset, blip_model)
-    #     recall_at10, recall_at50 = compute_fiq_val_metrics(relative_val_dataset, blip_model,
-    #                                                         index_features, index_names, txt_processors)
-        
-    #     recalls_at10.append(recall_at10)
-    #     recalls_at50.append(recall_at50)
-    #     torch.cuda.empty_cache()
-
-    # results_dict = {}
-    # for i in range(len(recalls_at10)):
-    #     results_dict[f'{idx_to_dress_mapping[i]}_recall_at10'] = recalls_at10[i]
-    #     results_dict[f'{idx_to_dress_mapping[i]}_recall_at50'] = recalls_at50[i]
-    # results_dict.update({
-    #     f'average_recall_at10': mean(recalls_at10),
-    #     f'average_recall_at50': mean(recalls_at50),
-    #     f'average_recall': (mean(recalls_at50) + mean(recalls_at10)) / 2
-    # })
-
-    # print(json.dumps(results_dict, indent=4))
     # Start with the training loop
     print('Training loop started')
     for epoch in range(num_epochs):
@@ -243,7 +211,8 @@ def clip_finetune_cirr(num_epochs: int, blip_model_name: str, learning_rate: flo
     :param save_best: when True save only the weights of the best Combiner wrt three different averages of the metrics
     :param kwargs: if you use the `targetpad` transform you should prove `target_ratio`    :return:
     """
-
+    rtc_weights = kwargs['loss_rtc']
+    align_weights = kwargs['loss_align']
     training_start = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     training_path: Path = Path(
         base_path / f"models/clip_finetuned_on_cirr_{blip_model_name}_{training_start}")
@@ -325,7 +294,10 @@ def clip_finetune_cirr(num_epochs: int, blip_model_name: str, learning_rate: flo
                 loss_dict = blip_model({"image":reference_images, "target":target_images, "text_input":captions})
                 loss = 0.
                 for key in loss_dict.keys():
-                    loss += loss_dict[key]
+                    if key != 'loss_itc':
+                        loss += kwargs[key] * loss_dict[key]
+                    else:
+                        loss += loss_dict[key]
                 # ground_truth = torch.arange(images_in_batch, dtype=torch.long, device=device)
                 # loss = crossentropy_criterion(logits, ground_truth) + 0.8 * loss_itm
                 # loss = crossentropy_criterion(logits, ground_truth)
@@ -394,6 +366,9 @@ if __name__ == '__main__':
     parser.add_argument("--blip-model-name", default="blip2_cir_cat", type=str, help="[blip2_cir_cat, blip2_cir]")
     parser.add_argument("--learning-rate", default=2e-6, type=float, help="Learning rate")
     parser.add_argument("--batch-size", default=512, type=int, help="Batch size")
+    parser.add_argument("--loss-align", default=0.6, type=float)
+    parser.add_argument("--loss-rtc", default=0.6, type=float)
+    parser.add_argument("--loss-itm", default=1, type=float)
     parser.add_argument("--validation-frequency", default=1, type=int, help="Validation frequency expressed in epochs")
     parser.add_argument("--target-ratio", default=1.25, type=float, help="TargetPad target ratio")
     parser.add_argument("--transform", default="targetpad", type=str,
@@ -418,7 +393,10 @@ if __name__ == '__main__':
         "target_ratio": args.target_ratio,
         "save_training": args.save_training,
         "save_best": args.save_best,
-        "data_path": args.data_path
+        "data_path": args.data_path,
+        "loss_rtc": args.loss_rtc,
+        "loss_align": args.loss_align,
+        "loss_itm": args.loss_itm
     }
 
     if args.dataset.lower() == 'cirr':
