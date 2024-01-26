@@ -110,4 +110,4 @@ python src/validate_blip.py \
 [ ] To be released.
 
 ### Acknowledgement
-Our implementation is based on [CLIP4Cir](https://github.com/ABaldrati/CLIP4Cir) and [LAVIS]([https://github.com/salesforce/BLIP](https://github.com/salesforce/LAVIS)https://github.com/salesforce/LAVIS).
+Our implementation is based on [CLIP4Cir](https://github.com/ABaldrati/CLIP4Cir) and [LAVIS](https://github.com/salesforce/LAVIS).
