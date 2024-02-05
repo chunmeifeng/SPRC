@@ -90,7 +90,7 @@ project_base_path
 ```sh
 python src/blip_fine_tune_2.py \
    --dataset {'CIRR' or 'FashionIQ'} \
-   --blip-model-name {'blip2_cir_align_prompt' or 'blip2_cir_cat' for baseline} \
+   --blip-model-name 'blip2_cir_align_prompt' \
    --num-epochs {'50' for CIRR, '30' for fashionIQ} \
    --num-workers 4 \
    --learning-rate {'1e-5' for CIRR, '2e-5' for fashionIQ} \
@@ -106,13 +106,18 @@ python src/blip_fine_tune_2.py \
 
 
 ```sh
-python src/validate_blip.py \
+python src/blip_validate.py \
    --dataset {'CIRR' or 'FashionIQ'} \
    --blip-model-name {trained model name} \
-   --blip-model-path {for path} 
+   --model-path {for path} 
 ```
 ### checkpoints
-[ ] To be released.
+download from https://pan.baidu.com/s/18196NRV0Cdbn5uPc3LIgwg, password: t1at
+
+### todo
+
+code and pre-trained weights for rerank model
 
 ### Acknowledgement
 Our implementation is based on [CLIP4Cir](https://github.com/ABaldrati/CLIP4Cir) and [LAVIS](https://github.com/salesforce/LAVIS).
+
