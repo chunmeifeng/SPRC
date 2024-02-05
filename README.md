@@ -111,6 +111,16 @@ python src/blip_validate.py \
    --blip-model-name {trained model name} \
    --model-path {for path} 
 ```
+
+### test on cirr
+
+
+```sh
+python src/cirr_test_submission.py \
+   --blip-model-name {trained model name} \
+   --model-path {for path} \
+
+
 ### checkpoints
 download from https://pan.baidu.com/s/18196NRV0Cdbn5uPc3LIgwg, password: t1at
 
