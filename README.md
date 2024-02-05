@@ -17,7 +17,6 @@ pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2
 pip install -r requirements.txt
 ```
 
-pytorch 2.0.1
 
 ### Data Preparation
 
@@ -102,7 +101,7 @@ python src/blip_fine_tune_2.py \
    --validation-frequency 1 
 ```
 
-### evaluation
+### Evaluation
 
 
 ```sh
@@ -112,7 +111,7 @@ python src/blip_validate.py \
    --model-path {for path} 
 ```
 
-### test on cirr
+### CIRR Testing
 
 
 ```sh
@@ -121,10 +120,10 @@ python src/cirr_test_submission.py \
    --model-path {for path} \
 ```
 
-### checkpoints
+### Checkpoints
 download from https://pan.baidu.com/s/18196NRV0Cdbn5uPc3LIgwg, password: t1at
 
-### todo
+### Todo
 
 code and pre-trained weights for rerank model
 
