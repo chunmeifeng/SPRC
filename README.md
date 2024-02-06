@@ -121,7 +121,8 @@ python src/cirr_test_submission.py \
 ```
 
 ### Checkpoints
-download from https://pan.baidu.com/s/18196NRV0Cdbn5uPc3LIgwg, password: t1at
+Onedrive: [sprc_cirr.pt](https://1drv.ms/u/s!Aj0q22vyiZbabxR_hjpQ_DmYX3s?e=k9fmt1), [sprc_fiq.pt](https://1drv.ms/u/s!Aj0q22vyiZbabnUya4mnufIBtYI?e=n4ZVKj)
+BaiduCloud: https://pan.baidu.com/s/18196NRV0Cdbn5uPc3LIgwg, password: t1at
 
 ### Todo
 
