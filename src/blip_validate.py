@@ -23,7 +23,7 @@ from utils import collate_fn, update_train_running_results, set_train_bar_descri
 from validate_blip import compute_cirr_val_metrics, compute_fiq_val_metrics
 
 
-def clip_finetune_fiq(val_dress_types: List[str], blip_model_name, model_path):
+def clip_finetune_fiq(val_dress_types: List[str], blip_model_name, backbone, model_path):
     """
     Fine-tune CLIP on the FashionIQ dataset using as combining function the image-text element-wise sum
     :param train_dress_types: FashionIQ categories to train on
@@ -42,7 +42,7 @@ def clip_finetune_fiq(val_dress_types: List[str], blip_model_name, model_path):
     """
 
     # clip_model, clip_preprocess = clip.load(clip_model_name, device=device, jit=False)
-    blip_model, _, txt_processors = load_model_and_preprocess(name=blip_model_name, model_type="pretrain", is_eval=False, device=device)
+    blip_model, _, txt_processors = load_model_and_preprocess(name=blip_model_name, model_type=backbone, is_eval=False, device=device)
     checkpoint_path = model_path
 
     checkpoint = torch.load(checkpoint_path, map_location=device)
@@ -100,8 +100,8 @@ def clip_finetune_fiq(val_dress_types: List[str], blip_model_name, model_path):
 
 
 
-def blip_validate_cirr(blip_model_name, blip_model_path):
-    blip_model, _, txt_processors = load_model_and_preprocess(name=blip_model_name, model_type="pretrain", is_eval=False, device=device)
+def blip_validate_cirr(blip_model_name, backbone, blip_model_path):
+    blip_model, _, txt_processors = load_model_and_preprocess(name=blip_model_name, model_type=backbone, is_eval=False, device=device)
     checkpoint_path = blip_model_path
 
     checkpoint = torch.load(checkpoint_path, map_location=device)
@@ -142,6 +142,7 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument("--dataset", type=str, required=True, help="should be either 'CIRR' or 'fashionIQ'")
     parser.add_argument("--blip-model-name", default="blip2_cir_rerank_learn", type=str)
+    parser.add_argument("--backbone", type=str, default="pretrain", help="pretrain for vit-g, pretrain_vitL for vit-l")
     parser.add_argument("--model-path", type=str)
 
     args = parser.parse_args()
@@ -149,6 +150,6 @@ if __name__ == '__main__':
         raise ValueError("Dataset should be either 'CIRR' or 'FashionIQ")
 
     if args.dataset.lower() == 'cirr':
-        blip_validate_cirr(args.blip_model_name, args.model_path)
+        blip_validate_cirr(args.blip_model_name, args.backbone, args.model_path)
     elif args.dataset.lower() == 'fashioniq':
-        clip_finetune_fiq(['dress', 'toptee', 'shirt'], args.blip_model_name, args.model_path)
+        clip_finetune_fiq(['dress', 'toptee', 'shirt'], args.blip_model_name, args.backbone, args.model_path)
