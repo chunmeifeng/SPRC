@@ -204,10 +204,12 @@ def main():
     parser = ArgumentParser()
     parser.add_argument("--blip-model-name", default="blip2_cir_cat", type=str)
     parser.add_argument("--model-path", type=str, help="Path to the fine-tuned CLIP model")
+    parser.add_argument("--backbone", type=str, default="pretrain", help="pretrain for vit-g, pretrain_vitL for vit-l")
     parser.add_argument("--rerank", type=str2bool, default=False)
     args = parser.parse_args()
     # blip model
-    blip_model, _, txt_processors = load_model_and_preprocess(name=args.blip_model_name, model_type="pretrain", is_eval=False, device=device)
+    blip_model, _, txt_processors = load_model_and_preprocess(name=args.blip_model_name, model_type=args.backbone, is_eval=False, device=device)
+    
     checkpoint_path = args.model_path
 
     checkpoint = torch.load(checkpoint_path, map_location=device)
