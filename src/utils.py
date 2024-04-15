@@ -43,7 +43,7 @@ def extract_index_features(dataset: Union[CIRRDataset, FashionIQDataset], clip_m
     return index_features, index_names
 
 
-def extract_index_blip_features(dataset: Union[CIRRDataset, FashionIQDataset,CIRCODataset], blip_model) -> \
+def extract_index_blip_features(dataset: Union[CIRRDataset, FashionIQDataset,CIRCODataset], blip_model, save_memory=False) -> \
         Tuple[torch.tensor, List[str]]:
     """
     Extract FashionIQ or CIRR index features
@@ -64,12 +64,16 @@ def extract_index_blip_features(dataset: Union[CIRRDataset, FashionIQDataset,CIR
         images = images.to(device, non_blocking=True)
         with torch.no_grad():
             image_features, image_embeds_frozen = blip_model.extract_target_features(images,  mode="mean")
+            if save_memory:
+                image_features = image_features.cpu()
+                image_embeds_frozen = image_embeds_frozen.cpu()
             index_features.append(image_features)
             index_features_raw.append(image_embeds_frozen)
             index_names.extend(names)
     
     index_features = torch.vstack(index_features)
     index_features_raw = torch.vstack(index_features_raw)
+
     return (index_features, index_features_raw), index_names
 
 def extract_index_fuse_features(dataset: Union[CIRRDataset, FashionIQDataset], fuse_model) -> \
