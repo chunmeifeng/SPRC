@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from lavis.models import load_model_and_preprocess
 from torch.optim.lr_scheduler import OneCycleLR
-
+import os
 
 from data_utils import base_path, squarepad_transform, targetpad_transform, CIRRDataset, FashionIQDataset
 from utils import collate_fn, update_train_running_results,update_train_running_results_dict, set_train_bar_description_dict,set_train_bar_description, extract_index_blip_features, \
@@ -23,7 +23,7 @@ from validate_blip import compute_cirr_val_metrics, compute_fiq_val_metrics
 
 
 def clip_finetune_fiq(train_dress_types: List[str], val_dress_types: List[str],
-                      num_epochs: int, blip_model_name: str, learning_rate: float, batch_size: int,
+                      num_epochs: int, blip_model_name: str, backbone: str, learning_rate: float, batch_size: int,
                       validation_frequency: int, transform: str, save_training: bool, save_best: bool,
                       **kwargs):
     """
@@ -51,8 +51,7 @@ def clip_finetune_fiq(train_dress_types: List[str], val_dress_types: List[str],
     # Save all the hyperparameters on a file
     with open(training_path / "training_hyperparameters.json", 'w+') as file:
         json.dump(training_hyper_params, file, sort_keys=True, indent=4)
-
-    blip_model, vis_processors, txt_processors = load_model_and_preprocess(name=blip_model_name, model_type="pretrain", is_eval=False, device=device)
+    blip_model, vis_processors, txt_processors = load_model_and_preprocess(name=blip_model_name, model_type=backbone, is_eval=False, device=device)
     update_method = getattr(blip_model, '_update_f_former', None)
     if callable(update_method):
         blip_model._update_f_former()
@@ -194,7 +193,7 @@ def clip_finetune_fiq(train_dress_types: List[str], val_dress_types: List[str],
 
 
 
-def clip_finetune_cirr(num_epochs: int, blip_model_name: str, learning_rate: float, batch_size: int,
+def clip_finetune_cirr(num_epochs: int, blip_model_name: str, backbone: str, learning_rate: float, batch_size: int,
                        validation_frequency: int, transform: str, save_training: bool, save_best: bool,
                        **kwargs):
     """
@@ -223,7 +222,7 @@ def clip_finetune_cirr(num_epochs: int, blip_model_name: str, learning_rate: flo
         json.dump(training_hyper_params, file, sort_keys=True, indent=4)
 
     # clip_model, clip_preprocess = clip.load(clip_model_name, device=device, jit=False)
-    blip_model, vis_processors, txt_processors = load_model_and_preprocess(name=blip_model_name, model_type="pretrain", is_eval=False, device=device)
+    blip_model, vis_processors, txt_processors = load_model_and_preprocess(name=blip_model_name, model_type=backbone, is_eval=False, device=device)
     update_method = getattr(blip_model, '_update_f_former', None)
     if callable(update_method):
         blip_model._update_f_former()
@@ -351,10 +350,22 @@ def clip_finetune_cirr(num_epochs: int, blip_model_name: str, learning_rate: flo
             validation_log_frame = pd.concat([validation_log_frame, pd.DataFrame(data=log_dict, index=[0])])
             validation_log_frame.to_csv(str(training_path / 'validation_metrics.csv'), index=False)
 
-            if save_training:
+            if save_training and epoch > 18:
                 if save_best and results_dict['arithmetic_mean'] > best_arithmetic:
                     best_arithmetic = results_dict['arithmetic_mean']
                     save_model('tuned_clip_arithmetic', epoch, blip_model, training_path)
+
+
+def set_seed(seed: int = 42) -> None:
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    # When running on the CuDNN backend, two further options must be set
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    # Set a fixed value for the hash seed
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    print(f"Random seed set as {seed}")
 
 
 if __name__ == '__main__':
@@ -364,10 +375,11 @@ if __name__ == '__main__':
     parser.add_argument("--num-workers", type=int, default=2)
     parser.add_argument("--num-epochs", default=300, type=int, help="number training epochs")
     parser.add_argument("--blip-model-name", default="blip2_cir_cat", type=str, help="[blip2_cir_cat, blip2_cir]")
+    parser.add_argument("--backbone", type=str, default="pretrain", help="pretrain for vit-g, pretrain_vitL for vit-l")
     parser.add_argument("--learning-rate", default=2e-6, type=float, help="Learning rate")
     parser.add_argument("--batch-size", default=512, type=int, help="Batch size")
-    parser.add_argument("--loss-align", default=0.6, type=float)
-    parser.add_argument("--loss-rtc", default=0.6, type=float)
+    parser.add_argument("--loss-align", default=0.4, type=float)
+    parser.add_argument("--loss-rtc", default=0.4, type=float)
     parser.add_argument("--loss-itm", default=1, type=float)
     parser.add_argument("--validation-frequency", default=1, type=int, help="Validation frequency expressed in epochs")
     parser.add_argument("--target-ratio", default=1.25, type=float, help="TargetPad target ratio")
@@ -386,6 +398,7 @@ if __name__ == '__main__':
         "num_epochs": args.num_epochs,
         "num_workers": args.num_workers,
         "blip_model_name": args.blip_model_name,
+        "backbone": args.backbone,
         "learning_rate": args.learning_rate,
         "batch_size": args.batch_size,
         "validation_frequency": args.validation_frequency,
@@ -398,10 +411,12 @@ if __name__ == '__main__':
         "loss_align": args.loss_align,
         "loss_itm": args.loss_itm
     }
-
+    # set_seed(912)
     if args.dataset.lower() == 'cirr':
         clip_finetune_cirr(**training_hyper_params)
     elif args.dataset.lower() == 'fashioniq':
         training_hyper_params.update(
             {'train_dress_types': ['dress', 'toptee', 'shirt'], 'val_dress_types': ['dress', 'toptee', 'shirt']})
         clip_finetune_fiq(**training_hyper_params)
+
+
