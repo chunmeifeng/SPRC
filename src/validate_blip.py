@@ -22,7 +22,7 @@ from statistics import mean, geometric_mean, harmonic_mean
 
 
 def compute_fiq_val_metrics(relative_val_dataset: FashionIQDataset, blip_model, index_features: torch.tensor,
-                            index_names: List[str], txt_processors) -> Tuple[float, float]:
+                            index_names: List[str], txt_processors, save_memory=False) -> Tuple[float, float]:
     """
     Compute validation metrics on FashionIQ dataset
     :param relative_val_dataset: FashionIQ validation dataset in relative mode
@@ -36,7 +36,7 @@ def compute_fiq_val_metrics(relative_val_dataset: FashionIQDataset, blip_model, 
 
     # Generate predictions
     pred_sim, target_names, reference_names, captions_all = generate_fiq_val_predictions(blip_model, relative_val_dataset,
-                                                                    index_names, index_features, txt_processors)
+                                                                    index_names, index_features, txt_processors, save_memory)
 
     print(f"Compute FashionIQ {relative_val_dataset.dress_types} validation metrics")
 
@@ -147,7 +147,7 @@ def vis_fiq_other(sorted_index_names, reference_names, captions_all, labels, dre
     print('vis_fiq_other')  
 
 def generate_fiq_val_predictions(blip_model, relative_val_dataset: FashionIQDataset,
-                                 index_names: List[str], index_features, txt_processors) -> \
+                                 index_names: List[str], index_features, txt_processors, save_memory=False) -> \
         Tuple[torch.tensor, List[str]]:
     """
     Compute FashionIQ predictions on the validation set
@@ -191,7 +191,11 @@ def generate_fiq_val_predictions(blip_model, relative_val_dataset: FashionIQData
             else:
                 reference_image_features = torch.stack(itemgetter(*reference_names)(
                     name_to_feat))  # To avoid unnecessary computation retrieve the reference image features directly from the index features
-            batch_distance = blip_model.inference(reference_image_features, index_features[0], input_captions)
+            feature_curr = index_features[0]
+            if save_memory:
+                feature_curr = feature_curr.to(blip_model.device)
+                reference_image_features = reference_image_features.to(blip_model.device)
+            batch_distance = blip_model.inference(reference_image_features, feature_curr, input_captions)
             distance.append(batch_distance)
             captions_all += input_captions
 
