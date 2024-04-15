@@ -125,7 +125,7 @@ Onedrive: [sprc_cirr.pt](https://1drv.ms/u/s!Aj0q22vyiZbabxR_hjpQ_DmYX3s?e=k9fmt
 
 BaiduCloud: https://pan.baidu.com/s/18196NRV0Cdbn5uPc3LIgwg, password: t1at
 
-[sprc_cirr_vitl.pt](https://drive.google.com/file/d/1217sOHWtvBG3Roq2AoNvVDH6eCfmYBRs/view?usp=sharing), [sprc_fiq_vitl.pt](https://drive.google.com/file/d/11p95msuuTAU6Pej7d_a-KjUHHpP3kH8Y/view?usp=sharing)
+models based on vit-l: [sprc_cirr_vitl.pt](https://drive.google.com/file/d/1217sOHWtvBG3Roq2AoNvVDH6eCfmYBRs/view?usp=sharing), [sprc_fiq_vitl.pt](https://drive.google.com/file/d/11p95msuuTAU6Pej7d_a-KjUHHpP3kH8Y/view?usp=sharing)
 
 ### Todo
 
