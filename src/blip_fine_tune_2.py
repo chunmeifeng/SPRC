@@ -24,7 +24,7 @@ from validate_blip import compute_cirr_val_metrics, compute_fiq_val_metrics
 
 def clip_finetune_fiq(train_dress_types: List[str], val_dress_types: List[str],
                       num_epochs: int, blip_model_name: str, backbone: str, learning_rate: float, batch_size: int,
-                      validation_frequency: int, transform: str, save_training: bool, save_best: bool,
+                      validation_frequency: int, transform: str, save_training: bool, save_best: bool, save_memory: bool, 
                       **kwargs):
     """
     Fine-tune CLIP on the FashionIQ dataset using as combining function the image-text element-wise sum
@@ -47,7 +47,7 @@ def clip_finetune_fiq(train_dress_types: List[str], val_dress_types: List[str],
     training_path: Path = Path(
         base_path / f"models/clip_finetuned_on_fiq_{blip_model_name}_{training_start}")
     training_path.mkdir(exist_ok=False, parents=True)
-
+    print(f"save-memory-in: {save_memory}")
     # Save all the hyperparameters on a file
     with open(training_path / "training_hyperparameters.json", 'w+') as file:
         json.dump(training_hyper_params, file, sort_keys=True, indent=4)
@@ -160,9 +160,9 @@ def clip_finetune_fiq(train_dress_types: List[str], val_dress_types: List[str],
             for relative_val_dataset, classic_val_dataset, idx in zip(relative_val_datasets, classic_val_datasets,
                                                                         idx_to_dress_mapping):
              
-                index_features, index_names = extract_index_blip_features(classic_val_dataset, blip_model)
+                index_features, index_names = extract_index_blip_features(classic_val_dataset, blip_model, save_memory)
                 recall_at10, recall_at50 = compute_fiq_val_metrics(relative_val_dataset, blip_model,
-                                                                    index_features, index_names, txt_processors)
+                                                                    index_features, index_names, txt_processors, save_memory)
                 
                 recalls_at10.append(recall_at10)
                 recalls_at50.append(recall_at50)
@@ -297,9 +297,6 @@ def clip_finetune_cirr(num_epochs: int, blip_model_name: str, backbone: str, lea
                         loss += kwargs[key] * loss_dict[key]
                     else:
                         loss += loss_dict[key]
-                # ground_truth = torch.arange(images_in_batch, dtype=torch.long, device=device)
-                # loss = crossentropy_criterion(logits, ground_truth) + 0.8 * loss_itm
-                # loss = crossentropy_criterion(logits, ground_truth)
             # Backpropagate and update the weights
             scaler.scale(loss).backward()
             scaler.step(optimizer)
@@ -350,7 +347,8 @@ def clip_finetune_cirr(num_epochs: int, blip_model_name: str, backbone: str, lea
             validation_log_frame = pd.concat([validation_log_frame, pd.DataFrame(data=log_dict, index=[0])])
             validation_log_frame.to_csv(str(training_path / 'validation_metrics.csv'), index=False)
 
-            if save_training and epoch > 18:
+            # if save_training and epoch > 18:
+            if save_training:
                 if save_best and results_dict['arithmetic_mean'] > best_arithmetic:
                     best_arithmetic = results_dict['arithmetic_mean']
                     save_model('tuned_clip_arithmetic', epoch, blip_model, training_path)
@@ -389,11 +387,13 @@ if __name__ == '__main__':
                         help="Whether save the training model")
     parser.add_argument("--save-best", dest="save_best", action='store_true',
                         help="Save only the best model during training")
+    parser.add_argument("--save-memory", dest="save_memory", action='store_true',
+                        help="Save only the best model during training")
 
     args = parser.parse_args()
     if args.dataset.lower() not in ['fashioniq', 'cirr']:
         raise ValueError("Dataset should be either 'CIRR' or 'FashionIQ")
-
+    print(f"save-memory: {args.save_memory}")
     training_hyper_params = {
         "num_epochs": args.num_epochs,
         "num_workers": args.num_workers,
@@ -409,7 +409,8 @@ if __name__ == '__main__':
         "data_path": args.data_path,
         "loss_rtc": args.loss_rtc,
         "loss_align": args.loss_align,
-        "loss_itm": args.loss_itm
+        "loss_itm": args.loss_itm,
+        "save_memory": args.save_memory
     }
     # set_seed(912)
     if args.dataset.lower() == 'cirr':
