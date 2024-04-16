@@ -12,7 +12,7 @@ The following commands will create a local Anaconda environment with the necessa
 
 ```bash
 conda create -n cir_sprc -y python=3.9
-conda activate cir
+conda activate cir_sprc
 pip install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2
 pip install -r requirements.txt
 ```
